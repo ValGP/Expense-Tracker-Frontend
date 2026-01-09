@@ -10,6 +10,14 @@ import NewTransactionPage from "../pages/NewTransactionPage";
 import AccountsPage from "../pages/AccountsPage";
 import SettingsPage from "../pages/SettingsPage";
 
+import CategoriesPage from "../pages/CategoriesPage";
+import CategoryCreatePage from "../pages/CategoryCreatePage";
+import CategoryEditPage from "../pages/CategoryEditPage";
+import TagsPage from "../pages/TagsPage";
+
+import AccountCreatePage from "../pages/AccountCreatePage";
+import AccountEditPage from "../pages/AccountEditPage";
+
 export const router = createBrowserRouter([
   { path: "/", element: <Navigate to="/login" replace /> },
 
@@ -29,6 +37,12 @@ export const router = createBrowserRouter([
           { path: "accounts", element: <AccountsPage /> },
           { path: "settings", element: <SettingsPage /> },
           { index: true, element: <Navigate to="/app/home" replace /> },
+          { path: "accounts/new", element: <AccountCreatePage /> },
+          { path: "accounts/:id", element: <AccountEditPage /> },
+          { path: "settings/categories", element: <CategoriesPage /> },
+          { path: "settings/categories/new", element: <CategoryCreatePage /> },
+          { path: "settings/categories/:id", element: <CategoryEditPage /> },
+          { path: "settings/tags", element: <TagsPage /> },
         ],
       },
     ],

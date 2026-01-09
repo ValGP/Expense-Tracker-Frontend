@@ -3,14 +3,29 @@ import { Card } from "../components/Card";
 import { Button } from "../components/Button";
 import { useAuth } from "../auth/useAuth";
 
+function RowLink({ title, subtitle, onClick }) {
+  return (
+    <button
+      onClick={onClick}
+      className="w-full rounded-xl px-3 py-3 text-left hover:bg-gray-50"
+      type="button"
+    >
+      <div className="flex items-center justify-between">
+        <div>
+          <div className="text-sm font-medium">{title}</div>
+          {subtitle && (
+            <div className="mt-1 text-xs text-gray-500">{subtitle}</div>
+          )}
+        </div>
+        <div className="text-gray-400">›</div>
+      </div>
+    </button>
+  );
+}
+
 export default function SettingsPage() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
-
-  function handleLogout() {
-    logout();
-    navigate("/login", { replace: true });
-  }
 
   return (
     <div className="space-y-4">
@@ -28,21 +43,31 @@ export default function SettingsPage() {
         </div>
       </Card>
 
-      <Button variant="secondary" onClick={handleLogout}>
+      <Card className="p-0">
+        <div className="px-4 pt-4 text-sm font-semibold">Personalización</div>
+        <div className="p-2">
+          <RowLink
+            title="Categorías"
+            subtitle="Gestioná las categorías de gastos/ingresos"
+            onClick={() => navigate("/app/settings/categories")}
+          />
+          <RowLink
+            title="Tags"
+            subtitle="(Después) Etiquetas para organizar movimientos"
+            onClick={() => navigate("/app/settings/tags")}
+          />
+        </div>
+      </Card>
+
+      <Button
+        variant="secondary"
+        onClick={() => {
+          logout();
+          navigate("/login", { replace: true });
+        }}
+      >
         Cerrar sesión
       </Button>
-
-      {import.meta.env.DEV && (
-        <button
-          className="w-full rounded-xl bg-gray-100 py-3 text-sm"
-          onClick={() => {
-            localStorage.setItem("et_token", "abc");
-            window.location.reload();
-          }}
-        >
-          Romper token (test)
-        </button>
-      )}
     </div>
   );
 }
