@@ -4,6 +4,7 @@ import { Card } from "../components/Card";
 import { Button } from "../components/Button";
 import { Input } from "../components/Input";
 import { Loader } from "../components/Loader";
+import { ConfirmDialog } from "../components/ConfirmDialog";
 import { getApiErrorMessage } from "../api/errorMessage";
 import { useAccounts, useCategories } from "../hooks/useLookups";
 import {
@@ -29,6 +30,8 @@ export default function TransactionDetailPage() {
 
   const accountsQ = useAccounts();
   const categoriesQ = useCategories();
+
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const accountsMap = useMemo(() => {
     const m = {};
@@ -108,9 +111,8 @@ export default function TransactionDetailPage() {
     }
   }
 
-  async function handleCancelTx() {
-    const ok = window.confirm("¿Querés anular este movimiento?");
-    if (!ok) return;
+  async function confirmCancel() {
+    setError("");
 
     try {
       await cancelM.mutateAsync(tx.id);
@@ -172,10 +174,10 @@ export default function TransactionDetailPage() {
           </Card>
 
           <div className="space-y-2">
-            <Button onClick={() => setEditMode(true)}>Editar</Button>
+            <Button onClick={() => setEditMode(true)}>Editar</Button>{" "}
             <Button
               variant="secondary"
-              onClick={handleCancelTx}
+              onClick={() => setConfirmOpen(true)}
               disabled={cancelM.isPending}
             >
               {cancelM.isPending ? "Anulando..." : "Anular movimiento"}
@@ -243,6 +245,21 @@ export default function TransactionDetailPage() {
           </form>
         </Card>
       )}
+
+      <ConfirmDialog
+        open={confirmOpen}
+        title="¿Anular este movimiento?"
+        message="Esta acción no se puede deshacer."
+        confirmText="Anular"
+        cancelText="Cancelar"
+        destructive
+        loading={cancelM.isPending}
+        onCancel={() => setConfirmOpen(false)}
+        onConfirm={() => {
+          setConfirmOpen(false);
+          confirmCancel();
+        }}
+      />
     </div>
   );
 }

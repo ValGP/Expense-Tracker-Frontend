@@ -51,11 +51,11 @@ export default function SettingsPage() {
             subtitle="Gestioná las categorías de gastos/ingresos"
             onClick={() => navigate("/app/settings/categories")}
           />
-          <RowLink
+          {/* <RowLink
             title="Tags"
-            subtitle="(Después) Etiquetas para organizar movimientos"
+            subtitle="Etiquetas para organizar movimientos"
             onClick={() => navigate("/app/settings/tags")}
-          />
+          /> */}
         </div>
       </Card>
 

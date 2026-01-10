@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "../components/Card";
 import { SkeletonRow } from "../components/Skeleton";
+import { BottomSheet } from "../components/BottomSheet";
 import { getApiErrorMessage } from "../api/errorMessage";
 import { useTransactionsPeriod } from "../hooks/useTransactions";
 import { useAccounts, useCategories } from "../hooks/useLookups";
@@ -9,12 +10,19 @@ import { toMapById } from "../utils/lookup";
 import { endOfMonthISO, monthLabel, startOfMonthISO } from "../utils/date";
 
 function formatMoney(amount) {
-  // amount viene como string (BigDecimal) o number
   const n = Number(amount ?? 0);
   return new Intl.NumberFormat("es-AR", {
     style: "currency",
     currency: "ARS",
   }).format(n);
+}
+
+function getTxAccountId(tx) {
+  // Para filtrar por cuenta, usamos la relevante según el tipo
+  if (tx.type === "EXPENSE") return tx.sourceAccountId ?? null;
+  if (tx.type === "INCOME") return tx.destinationAccountId ?? null;
+  if (tx.type === "TRANSFER") return tx.sourceAccountId ?? null; // MVP
+  return null;
 }
 
 export default function TransactionsPage() {
@@ -35,7 +43,6 @@ export default function TransactionsPage() {
     () => toMapById(accountsQ.data),
     [accountsQ.data]
   );
-
   const categoriesMap = useMemo(
     () => toMapById(categoriesQ.data),
     [categoriesQ.data]
@@ -55,13 +62,71 @@ export default function TransactionsPage() {
     setMonth(d.getMonth());
   }
 
+  // Base List
   const visible = useMemo(() => {
     const list = data ?? [];
     return list.filter((tx) => tx.state !== "CANCELED");
   }, [data]);
 
+  // --------------------
+  // Filtros + búsqueda (estado)
+  // --------------------
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [q, setQ] = useState("");
+  const [accountId, setAccountId] = useState(""); // "" = todas
+  const [categoryId, setCategoryId] = useState(""); // "" = todas
+
+  const filtered = useMemo(() => {
+    const search = q.trim().toLowerCase();
+
+    return (visible ?? []).filter((tx) => {
+      // cuenta
+      if (accountId) {
+        const txAccId = getTxAccountId(tx);
+        if (String(txAccId) !== String(accountId)) return false;
+      }
+
+      // categoría
+      if (categoryId) {
+        if (String(tx.categoryId ?? "") !== String(categoryId)) return false;
+      }
+
+      // búsqueda
+      if (search) {
+        const desc = (tx.description ?? "").toLowerCase();
+
+        const catName = (
+          categoriesMap[tx.categoryId]?.name ?? ""
+        ).toLowerCase();
+
+        const accName =
+          (tx.type === "EXPENSE"
+            ? accountsMap[tx.sourceAccountId]?.name
+            : accountsMap[tx.destinationAccountId]?.name
+          )?.toLowerCase?.() ?? "";
+
+        const opDate = (tx.operationDate ?? "").toLowerCase();
+
+        const haystack = `${desc} ${catName} ${accName} ${opDate}`;
+        if (!haystack.includes(search)) return false;
+      }
+
+      return true;
+    });
+  }, [visible, q, accountId, categoryId, accountsMap, categoriesMap]);
+
+  const activeFiltersCount =
+    (accountId ? 1 : 0) + (categoryId ? 1 : 0) + (q.trim() ? 1 : 0);
+
+  function clearFilters() {
+    setQ("");
+    setAccountId("");
+    setCategoryId("");
+  }
+
   return (
     <div className="space-y-4">
+      {/* Header: mes + botón filtros */}
       <Card className="flex items-center justify-between">
         <button
           className="rounded-lg px-3 py-2 text-sm bg-gray-100"
@@ -72,14 +137,95 @@ export default function TransactionsPage() {
 
         <div className="text-sm font-semibold">{monthLabel(year, month)}</div>
 
-        <button
-          className="rounded-lg px-3 py-2 text-sm bg-gray-100"
-          onClick={nextMonth}
-        >
-          ▶
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            className="rounded-lg px-3 py-2 text-sm bg-gray-100"
+            onClick={() => setFiltersOpen(true)}
+          >
+            Filtrar{activeFiltersCount ? ` (${activeFiltersCount})` : ""}
+          </button>
+
+          <button
+            className="rounded-lg px-3 py-2 text-sm bg-gray-100"
+            onClick={nextMonth}
+          >
+            ▶
+          </button>
+        </div>
       </Card>
 
+      {/* búsqueda inline */}
+      <Card>
+        <input
+          className="w-full rounded-xl border border-gray-200 bg-white px-3 py-3 text-base outline-none focus:border-gray-400"
+          placeholder="Buscar por descripción, categoría, cuenta..."
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+        />
+      </Card>
+
+      {/* BottomSheet filtros */}
+      <BottomSheet
+        open={filtersOpen}
+        title="Filtros"
+        onClose={() => setFiltersOpen(false)}
+      >
+        <div className="space-y-3">
+          {/* Cuenta */}
+          <label className="block">
+            <span className="mb-1 block text-sm text-gray-700">Cuenta</span>
+            <select
+              className="w-full rounded-xl border border-gray-200 bg-white px-3 py-3 text-base outline-none focus:border-gray-400"
+              value={accountId}
+              onChange={(e) => setAccountId(e.target.value)}
+            >
+              <option value="">Todas</option>
+              {(accountsQ.data ?? []).map((a) => (
+                <option key={a.id} value={a.id}>
+                  {a.name} ({a.currencyCode})
+                </option>
+              ))}
+            </select>
+          </label>
+
+          {/* Categoría */}
+          <label className="block">
+            <span className="mb-1 block text-sm text-gray-700">Categoría</span>
+            <select
+              className="w-full rounded-xl border border-gray-200 bg-white px-3 py-3 text-base outline-none focus:border-gray-400"
+              value={categoryId}
+              onChange={(e) => setCategoryId(e.target.value)}
+            >
+              <option value="">Todas</option>
+              {(categoriesQ.data ?? []).map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <div className="flex gap-2">
+            <button
+              type="button"
+              className="flex-1 rounded-xl bg-black py-3 text-sm font-medium text-white"
+              onClick={() => setFiltersOpen(false)}
+            >
+              Aplicar
+            </button>
+
+            <button
+              type="button"
+              className="flex-1 rounded-xl bg-gray-100 py-3 text-sm font-medium text-gray-700"
+              onClick={clearFilters}
+            >
+              Limpiar
+            </button>
+          </div>
+        </div>
+      </BottomSheet>
+
+      {/* Loading / Error */}
       {isLoading && (
         <div className="space-y-3">
           <SkeletonRow />
@@ -96,20 +242,36 @@ export default function TransactionsPage() {
         </Card>
       )}
 
-      {!isLoading && !error && (visible?.length ?? 0) === 0 && (
+      {/* Empty */}
+      {!isLoading && !error && (filtered?.length ?? 0) === 0 && (
         <Card>
           <div className="text-sm text-gray-600">
-            No hay movimientos en este período.
+            No hay movimientos con estos filtros.
           </div>
           <div className="mt-2 text-xs text-gray-500">
-            Probá creando un gasto/ingreso con el botón “+”.
+            Probá limpiar filtros o cambiar de mes.
           </div>
+          {activeFiltersCount > 0 && (
+            <div className="mt-3">
+              <button
+                className="rounded-lg px-3 py-2 text-sm bg-gray-100"
+                onClick={clearFilters}
+              >
+                Limpiar filtros
+              </button>
+            </div>
+          )}
         </Card>
       )}
 
-      {!isLoading && !error && (visible?.length ?? 0) > 0 && (
+      {/* List */}
+      {!isLoading && !error && (filtered?.length ?? 0) > 0 && (
         <div className="space-y-3">
-          {visible.map((tx) => (
+          <div className="px-1 text-xs text-gray-500">
+            Mostrando {filtered.length} movimiento(s)
+          </div>
+
+          {filtered.map((tx) => (
             <button
               key={tx.id}
               type="button"
@@ -125,7 +287,7 @@ export default function TransactionsPage() {
                     {tx.operationDate}
                   </div>
 
-                  <div className="mt-1 text-xs text-gray-500">
+                  <div className="mt-1 text-xs text-gray-500 truncate">
                     {categoriesMap[tx.categoryId]?.name ?? "Sin categoría"}
                     {" • "}
                     {tx.type === "EXPENSE"
