@@ -4,11 +4,12 @@ import AppLayout from "./AppLayout";
 
 import LoginPage from "../pages/LoginPage";
 import RegisterPage from "../pages/RegisterPage";
-import HomePage from "../pages/HomePage";
 import TransactionsPage from "../pages/TransactionsPage";
+import TransactionDetailPage from "../pages/TransactionDetailPage";
 import NewTransactionPage from "../pages/NewTransactionPage";
 import AccountsPage from "../pages/AccountsPage";
 import SettingsPage from "../pages/SettingsPage";
+import DashboardPage from "../pages/DashboardPage";
 
 import CategoriesPage from "../pages/CategoriesPage";
 import CategoryCreatePage from "../pages/CategoryCreatePage";
@@ -31,8 +32,9 @@ export const router = createBrowserRouter([
         path: "/app",
         element: <AppLayout />,
         children: [
-          { path: "home", element: <HomePage /> },
+          { path: "home", element: <DashboardPage /> },
           { path: "transactions", element: <TransactionsPage /> },
+          { path: "transactions/:id", element: <TransactionDetailPage /> },
           { path: "transactions/new", element: <NewTransactionPage /> },
           { path: "accounts", element: <AccountsPage /> },
           { path: "settings", element: <SettingsPage /> },

@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card } from "../components/Card";
 import { SkeletonRow } from "../components/Skeleton";
 import { getApiErrorMessage } from "../api/errorMessage";
@@ -28,6 +29,7 @@ export default function TransactionsPage() {
 
   const accountsQ = useAccounts();
   const categoriesQ = useCategories();
+  const navigate = useNavigate();
 
   const accountsMap = useMemo(
     () => toMapById(accountsQ.data),
@@ -52,6 +54,11 @@ export default function TransactionsPage() {
     setYear(d.getFullYear());
     setMonth(d.getMonth());
   }
+
+  const visible = useMemo(() => {
+    const list = data ?? [];
+    return list.filter((tx) => tx.state !== "CANCELED");
+  }, [data]);
 
   return (
     <div className="space-y-4">
@@ -89,7 +96,7 @@ export default function TransactionsPage() {
         </Card>
       )}
 
-      {!isLoading && !error && (data?.length ?? 0) === 0 && (
+      {!isLoading && !error && (visible?.length ?? 0) === 0 && (
         <Card>
           <div className="text-sm text-gray-600">
             No hay movimientos en este período.
@@ -100,32 +107,43 @@ export default function TransactionsPage() {
         </Card>
       )}
 
-      {!isLoading && !error && (data?.length ?? 0) > 0 && (
+      {!isLoading && !error && (visible?.length ?? 0) > 0 && (
         <div className="space-y-3">
-          {data.map((tx) => (
-            <Card key={tx.id} className="flex items-center justify-between">
-              <div className="min-w-0">
-                <div className="text-sm font-semibold truncate">
-                  {tx.description || "(Sin descripción)"}
-                </div>
-                <div className="mt-1 text-xs text-gray-500">
-                  {tx.operationDate}
+          {visible.map((tx) => (
+            <button
+              key={tx.id}
+              type="button"
+              className="w-full text-left"
+              onClick={() => navigate(`/app/transactions/${tx.id}`)}
+            >
+              <Card className="flex items-center justify-between hover:bg-gray-50">
+                <div className="min-w-0">
+                  <div className="text-sm font-semibold truncate">
+                    {tx.description || "(Sin descripción)"}
+                  </div>
+                  <div className="mt-1 text-xs text-gray-500">
+                    {tx.operationDate}
+                  </div>
+
+                  <div className="mt-1 text-xs text-gray-500">
+                    {categoriesMap[tx.categoryId]?.name ?? "Sin categoría"}
+                    {" • "}
+                    {tx.type === "EXPENSE"
+                      ? accountsMap[tx.sourceAccountId]?.name
+                      : accountsMap[tx.destinationAccountId]?.name}
+                  </div>
                 </div>
 
-                <div className="mt-1 text-xs text-gray-500">
-                  {categoriesMap[tx.categoryId]?.name ?? "Sin categoría"}
-                  {" • "}
+                <div className="text-sm font-semibold">
                   {tx.type === "EXPENSE"
-                    ? accountsMap[tx.sourceAccountId]?.name
-                    : accountsMap[tx.destinationAccountId]?.name}
+                    ? "-"
+                    : tx.type === "INCOME"
+                    ? "+"
+                    : ""}
+                  {formatMoney(tx.amount)}
                 </div>
-              </div>
-
-              <div className="text-sm font-semibold">
-                {tx.type === "EXPENSE" ? "-" : tx.type === "INCOME" ? "+" : ""}
-                {formatMoney(tx.amount)}
-              </div>
-            </Card>
+              </Card>
+            </button>
           ))}
         </div>
       )}

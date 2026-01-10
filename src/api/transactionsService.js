@@ -23,3 +23,14 @@ export async function createIncome(payload) {
   const res = await http.post("/api/transactions/income", payload);
   return res.data;
 }
+
+export async function updateTransaction(id, payload) {
+  // payload: { description?, operationDate?, categoryId?, tagIds? }
+  const res = await http.patch(`/api/transactions/${id}`, payload);
+  return res.data; // TransactionResponse
+}
+
+export async function cancelTransaction(id) {
+  const res = await http.patch(`/api/transactions/${id}/cancel`);
+  return res.data; // TransactionResponse
+}
