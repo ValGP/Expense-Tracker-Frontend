@@ -7,7 +7,9 @@ import { getApiErrorMessage } from "../api/errorMessage";
 import { useTransactionsPeriod } from "../hooks/useTransactions";
 import { useAccounts, useCategories } from "../hooks/useLookups";
 import { toMapById } from "../utils/lookup";
+import { formatShortDate } from "../utils/date";
 import { endOfMonthISO, monthLabel, startOfMonthISO } from "../utils/date";
+import { ChevronLeft, ChevronRight, Filter } from "lucide-react";
 
 function formatMoney(amount) {
   const n = Number(amount ?? 0);
@@ -129,39 +131,32 @@ export default function TransactionsPage() {
       {/* Header: mes + botón filtros */}
       <Card className="flex items-center justify-between">
         <button
-          className="rounded-lg px-3 py-2 text-sm bg-gray-100"
+          className="rounded-lg bg-gray-100 p-2"
           onClick={prevMonth}
+          aria-label="Mes anterior"
         >
-          ◀
+          <ChevronLeft size={18} />
         </button>
 
         <div className="text-sm font-semibold">{monthLabel(year, month)}</div>
 
         <div className="flex items-center gap-2">
           <button
-            className="rounded-lg px-3 py-2 text-sm bg-gray-100"
+            className="flex items-center gap-1 rounded-lg bg-gray-100 px-3 py-2 text-sm"
             onClick={() => setFiltersOpen(true)}
           >
-            Filtrar{activeFiltersCount ? ` (${activeFiltersCount})` : ""}
+            <Filter size={16} />
+            {activeFiltersCount ? ` (${activeFiltersCount})` : ""}
           </button>
 
           <button
-            className="rounded-lg px-3 py-2 text-sm bg-gray-100"
+            className="rounded-lg bg-gray-100 p-2"
             onClick={nextMonth}
+            aria-label="Mes siguiente"
           >
-            ▶
+            <ChevronRight size={18} />
           </button>
         </div>
-      </Card>
-
-      {/* búsqueda inline */}
-      <Card>
-        <input
-          className="w-full rounded-xl border border-gray-200 bg-white px-3 py-3 text-base outline-none focus:border-gray-400"
-          placeholder="Buscar por descripción, categoría, cuenta..."
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-        />
       </Card>
 
       {/* BottomSheet filtros */}
@@ -271,42 +266,63 @@ export default function TransactionsPage() {
             Mostrando {filtered.length} movimiento(s)
           </div>
 
-          {filtered.map((tx) => (
-            <button
-              key={tx.id}
-              type="button"
-              className="w-full text-left"
-              onClick={() => navigate(`/app/transactions/${tx.id}`)}
-            >
-              <Card className="flex items-center justify-between hover:bg-gray-50">
-                <div className="min-w-0">
-                  <div className="text-sm font-semibold truncate">
-                    {tx.description || "(Sin descripción)"}
-                  </div>
-                  <div className="mt-1 text-xs text-gray-500">
-                    {tx.operationDate}
+          {filtered.map((tx) => {
+            const category = categoriesMap[tx.categoryId];
+            const categoryName = category?.name ?? "Sin categoría";
+            const categoryColor = category?.colorHex ?? "#9CA3AF"; // gray-400 fallback
+
+            const accountName =
+              tx.type === "EXPENSE"
+                ? accountsMap[tx.sourceAccountId]?.name
+                : accountsMap[tx.destinationAccountId]?.name;
+
+            return (
+              <button
+                key={tx.id}
+                type="button"
+                className="w-full text-left"
+                onClick={() => navigate(`/app/transactions/${tx.id}`)}
+              >
+                <Card className="flex items-center justify-between hover:bg-gray-50">
+                  <div className="min-w-0">
+                    {/* Título + dot */}
+                    <div className="flex items-center gap-2">
+                      <span
+                        className="h-2 w-2 rounded-full shrink-0"
+                        style={{ backgroundColor: categoryColor }}
+                      />
+
+                      <div className="text-sm font-semibold truncate">
+                        {tx.description?.trim() || categoryName}
+                      </div>
+                    </div>
+
+                    {/* Fecha */}
+                    <div className="mt-1 text-xs text-gray-500">
+                      {formatShortDate(tx.operationDate)}
+                    </div>
+
+                    {/* Categoría • Cuenta */}
+                    <div className="mt-1 text-xs text-gray-500 truncate">
+                      {categoryName}
+                      {" • "}
+                      {accountName || "Cuenta"}
+                    </div>
                   </div>
 
-                  <div className="mt-1 text-xs text-gray-500 truncate">
-                    {categoriesMap[tx.categoryId]?.name ?? "Sin categoría"}
-                    {" • "}
+                  {/* Monto */}
+                  <div className="text-sm font-semibold">
                     {tx.type === "EXPENSE"
-                      ? accountsMap[tx.sourceAccountId]?.name
-                      : accountsMap[tx.destinationAccountId]?.name}
+                      ? "-"
+                      : tx.type === "INCOME"
+                      ? "+"
+                      : ""}
+                    {formatMoney(tx.amount)}
                   </div>
-                </div>
-
-                <div className="text-sm font-semibold">
-                  {tx.type === "EXPENSE"
-                    ? "-"
-                    : tx.type === "INCOME"
-                    ? "+"
-                    : ""}
-                  {formatMoney(tx.amount)}
-                </div>
-              </Card>
-            </button>
-          ))}
+                </Card>
+              </button>
+            );
+          })}
         </div>
       )}
     </div>
