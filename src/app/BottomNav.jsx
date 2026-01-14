@@ -1,7 +1,8 @@
 import { NavLink } from "react-router-dom";
+import { Home, FileText, CreditCard, Settings, Plus } from "lucide-react";
 
 const linkBase =
-  "flex flex-1 flex-col items-center justify-center gap-1 py-2 text-xs";
+  "flex flex-1 flex-col items-center justify-center gap-1 py-2 text-[11px]";
 const active = "text-black";
 const inactive = "text-gray-500";
 
@@ -15,8 +16,16 @@ export default function BottomNav() {
             `${linkBase} ${isActive ? active : inactive}`
           }
         >
-          <span>🏠</span>
-          <span>Home</span>
+          {({ isActive }) => (
+            <>
+              <Home
+                size={20}
+                strokeWidth={2}
+                className={isActive ? "text-black" : "text-gray-500"}
+              />
+              <span>Home</span>
+            </>
+          )}
         </NavLink>
 
         <NavLink
@@ -25,20 +34,27 @@ export default function BottomNav() {
             `${linkBase} ${isActive ? active : inactive}`
           }
         >
-          <span>📄</span>
-          <span>Mov.</span>
+          {({ isActive }) => (
+            <>
+              <FileText
+                size={20}
+                strokeWidth={2}
+                className={isActive ? "text-black" : "text-gray-500"}
+              />
+              <span>Mov.</span>
+            </>
+          )}
         </NavLink>
 
+        {/* Botón central */}
         <NavLink
           to="/app/transactions/new"
-          className={({ isActive }) =>
-            `${linkBase} ${isActive ? active : inactive}`
-          }
+          className={() => "flex flex-1 items-center justify-center"}
+          aria-label="Nuevo movimiento"
         >
-          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-black text-white">
-            +
-          </span>
-          <span>Nuevo</span>
+          <div className="relative -top-3 flex h-14 w-14 items-center justify-center rounded-full bg-black shadow-lg">
+            <Plus size={24} strokeWidth={2.5} className="text-white" />
+          </div>
         </NavLink>
 
         <NavLink
@@ -47,8 +63,16 @@ export default function BottomNav() {
             `${linkBase} ${isActive ? active : inactive}`
           }
         >
-          <span>💳</span>
-          <span>Cuentas</span>
+          {({ isActive }) => (
+            <>
+              <CreditCard
+                size={20}
+                strokeWidth={2}
+                className={isActive ? "text-black" : "text-gray-500"}
+              />
+              <span>Cuentas</span>
+            </>
+          )}
         </NavLink>
 
         <NavLink
@@ -57,8 +81,16 @@ export default function BottomNav() {
             `${linkBase} ${isActive ? active : inactive}`
           }
         >
-          <span>⚙️</span>
-          <span>Ajustes</span>
+          {({ isActive }) => (
+            <>
+              <Settings
+                size={20}
+                strokeWidth={2}
+                className={isActive ? "text-black" : "text-gray-500"}
+              />
+              <span>Ajustes</span>
+            </>
+          )}
         </NavLink>
       </div>
     </nav>

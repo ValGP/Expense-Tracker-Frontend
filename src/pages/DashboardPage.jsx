@@ -3,25 +3,20 @@ import { useNavigate } from "react-router-dom";
 import { Card } from "../components/Card";
 import { Button } from "../components/Button";
 import { Loader } from "../components/Loader";
+import { StatCard } from "../components/StatCard";
+import { ExpenseDonut } from "../components/ExpenseDonut";
 import { getApiErrorMessage } from "../api/errorMessage";
 import { useSummary } from "../hooks/useSummary";
 import { useTransactionsPeriod } from "../hooks/useTransactions";
 import { useAccounts, useCategories } from "../hooks/useLookups";
 import { addMonths, formatMonthLabel, getMonthRangeISO } from "../utils/month";
+import { formatShortDate } from "../utils/date";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 function money(value, currency = "ARS") {
   const n = Number(value ?? 0);
   return new Intl.NumberFormat("es-AR", { style: "currency", currency }).format(
     n
-  );
-}
-
-function StatCard({ title, value }) {
-  return (
-    <Card>
-      <div className="text-xs text-gray-500">{title}</div>
-      <div className="mt-1 text-xl font-semibold">{value}</div>
-    </Card>
   );
 }
 
@@ -81,6 +76,44 @@ export default function DashboardPage() {
 
   const summary = summaryQ.data;
 
+  // DATA FOR EXPENSE DONUT
+  const top = summary?.topCategories ?? [];
+  const totalExpenseNum = Number(summary?.totalExpense ?? 0);
+
+  // suma del top
+  const topSum = top.reduce((acc, c) => acc + Number(c.total ?? 0), 0);
+
+  // “Otros” = totalExpense - sumaTop
+  const others = Math.max(0, totalExpenseNum - topSum);
+
+  // Items del donut (top + otros)
+  const donutItems = [
+    ...top.map((c) => {
+      const name =
+        c.categoryName ||
+        categoriesMap?.[c.categoryId]?.name ||
+        "Sin categoría";
+      const color = categoriesMap?.[c.categoryId]?.colorHex;
+
+      return {
+        label: name,
+        value: c.total, // puede ser string BigDecimal
+        color,
+        _key: `cat-${c.categoryId}`,
+      };
+    }),
+    ...(others > 0
+      ? [
+          {
+            label: "Otros",
+            value: others, // number
+            color: "#9CA3AF",
+            _key: "others",
+          },
+        ]
+      : []),
+  ];
+
   return (
     <div className="space-y-4">
       {/* Header */}
@@ -95,62 +128,95 @@ export default function DashboardPage() {
         <div className="flex items-center gap-2">
           <button
             type="button"
-            className="h-10 w-10 rounded-full bg-gray-100"
             onClick={() => setMonthDate((d) => addMonths(d, -1))}
             aria-label="Mes anterior"
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200 active:scale-95 transition"
           >
-            ‹
+            <ChevronLeft size={20} />
           </button>
+
           <button
             type="button"
-            className="h-10 w-10 rounded-full bg-gray-100"
             onClick={() => setMonthDate((d) => addMonths(d, 1))}
             aria-label="Mes siguiente"
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200 active:scale-95 transition"
           >
-            ›
+            <ChevronRight size={20} />
           </button>
         </div>
       </Card>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <StatCard title="Gastos del mes" value={money(summary?.totalExpense)} />
+      <div className="space-y-3">
+        {/* Balance protagonista */}
         <StatCard
-          title="Ingresos del mes"
-          value={money(summary?.totalIncome)}
+          title="Balance"
+          value={money(summary?.net)}
+          className="py-4 text-center"
+          valueClassName="text-4xl"
+          titleClassName="text-sm text-gray-500"
         />
-        <StatCard title="Balance" value={money(summary?.net)} />
+
+        {/* Gastos / Ingresos */}
+        <div className="grid grid-cols-2 gap-3">
+          <StatCard
+            title="Gastos del mes"
+            value={money(summary?.totalExpense)}
+            className="py-4"
+            valueClassName="text-xl"
+          />
+          <StatCard
+            title="Ingresos del mes"
+            value={money(summary?.totalIncome)}
+            className="py-4"
+            valueClassName="text-xl"
+          />
+        </div>
       </div>
 
-      {/* Top Categories */}
+      {/* Expense structure */}
       <Card>
         <div className="flex items-center justify-between">
-          <div className="text-sm font-semibold">Top categorías</div>
+          <div className="text-sm font-semibold">Estructura de gastos</div>
           <button
             className="text-sm text-gray-600"
-            onClick={() => navigate("/app/settings/categories")}
+            onClick={() => navigate("/app/transactions")}
           >
             Ver
           </button>
         </div>
 
+        <div className="mt-3">
+          <ExpenseDonut
+            items={donutItems}
+            totalLabel="Gastos"
+            totalValue={money(summary?.totalExpense)}
+            height={190}
+          />
+        </div>
+
+        {/* Mini leyenda */}
         <div className="mt-3 space-y-2">
-          {(summary?.topCategories ?? []).length === 0 ? (
+          {donutItems.length === 0 ? (
             <div className="text-sm text-gray-600">
               Sin gastos confirmados en este período.
             </div>
           ) : (
-            summary.topCategories.slice(0, 5).map((c) => (
+            donutItems.slice(0, 20).map((c) => (
               <div
-                key={c.categoryId}
+                key={c._key ?? c.label}
                 className="flex items-center justify-between"
               >
-                <div className="text-sm text-gray-800">
-                  {c.categoryName ||
-                    categoriesMap[c.categoryId]?.name ||
-                    "Sin categoría"}
+                <div className="flex items-center gap-2 min-w-0">
+                  <span
+                    className="h-2.5 w-2.5 rounded-full"
+                    style={{ backgroundColor: c.color || "#9CA3AF" }}
+                  />
+                  <div className="text-sm text-gray-800 truncate">
+                    {c.label}
+                  </div>
                 </div>
-                <div className="text-sm font-semibold">{money(c.total)}</div>
+                <div className="text-sm font-semibold">{money(c.value)}</div>
               </div>
             ))
           )}
@@ -197,7 +263,8 @@ export default function DashboardPage() {
                         {tx.description || categoryName}
                       </div>
                       <div className="mt-1 text-xs text-gray-500 truncate">
-                        {accountName || "Cuenta"} • {tx.operationDate}
+                        {accountName || "Cuenta"} •{" "}
+                        {formatShortDate(tx.operationDate)}
                       </div>
                     </div>
                     <div className="text-sm font-semibold">
