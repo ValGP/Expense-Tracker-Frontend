@@ -1,4 +1,6 @@
 import { useNavigate } from "react-router-dom";
+import { Plus, Pencil } from "lucide-react";
+
 import { Card } from "../components/Card";
 import { Button } from "../components/Button";
 import { Loader } from "../components/Loader";
@@ -32,12 +34,14 @@ export default function AccountsPage() {
     <div className="space-y-4">
       <Card className="flex items-center justify-between">
         <div className="text-lg font-semibold">Cuentas</div>
+
         <button
           onClick={() => navigate("/app/accounts/new")}
-          className="flex h-10 w-10 items-center justify-center rounded-full bg-black text-white text-xl"
-          aria-label="Agregar"
+          className="flex h-10 w-10 items-center justify-center rounded-full bg-black text-white"
+          aria-label="Agregar cuenta"
+          type="button"
         >
-          +
+          <Plus size={18} />
         </button>
       </Card>
 
@@ -66,10 +70,12 @@ export default function AccountsPage() {
               </div>
 
               <button
-                className="rounded-lg px-3 py-2 text-sm bg-gray-100"
+                className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100"
                 onClick={() => navigate(`/app/accounts/${a.id}`)}
+                aria-label="Editar cuenta"
+                type="button"
               >
-                Editar
+                <Pencil size={16} />
               </button>
             </Card>
           ))}

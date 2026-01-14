@@ -4,6 +4,7 @@ import { Card } from "../components/Card";
 import { Input } from "../components/Input";
 import { Button } from "../components/Button";
 import { Loader } from "../components/Loader";
+import { ConfirmDialog } from "../components/ConfirmDialog";
 import { useCategories } from "../hooks/useLookups";
 import { useUpdateCategory } from "../hooks/useCategoriesCrud";
 import { getApiErrorMessage } from "../api/errorMessage";
@@ -25,7 +26,8 @@ export default function CategoryEditPage() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [colorHex, setColorHex] = useState("#3b82f6");
-  const [active, setActive] = useState(true);
+
+  const [archiveOpen, setArchiveOpen] = useState(false);
 
   // Inicializar form cuando llegue category
   useEffect(() => {
@@ -41,10 +43,6 @@ export default function CategoryEditPage() {
     });
     setColorHex((prev) => {
       const next = category.colorHex ?? "#3b82f6";
-      return prev === next ? prev : next;
-    });
-    setActive((prev) => {
-      const next = !!category.active;
       return prev === next ? prev : next;
     });
   }, [category]);
@@ -75,7 +73,21 @@ export default function CategoryEditPage() {
           name: name.trim() || null,
           description: description.trim() || null,
           colorHex,
-          active,
+        },
+      });
+      navigate("/app/settings/categories", { replace: true });
+    } catch (err) {
+      setError(getApiErrorMessage(err));
+    }
+  }
+
+  async function confirmArchive() {
+    setError("");
+    try {
+      await update.mutateAsync({
+        id: categoryId,
+        payload: {
+          active: false,
         },
       });
       navigate("/app/settings/categories", { replace: true });
@@ -100,6 +112,7 @@ export default function CategoryEditPage() {
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
+
         <Input
           label="Descripción"
           value={description}
@@ -116,23 +129,44 @@ export default function CategoryEditPage() {
           />
         </label>
 
-        <label className="flex items-center gap-2 text-sm text-gray-700">
-          <input
-            type="checkbox"
-            checked={active}
-            onChange={(e) => setActive(e.target.checked)}
-          />
-          Activa
-        </label>
-
-        <Button disabled={update.isPending || !name.trim()}>
+        <Button disabled={update.isPending || !name.trim()} className="w-full">
           {update.isPending ? "Guardando..." : "Guardar"}
         </Button>
 
-        <Button variant="secondary" type="button" onClick={() => navigate(-1)}>
+        {/* Acción destructiva (archivar/desactivar) debajo del guardar */}
+        <Button
+          type="button"
+          variant="secondary"
+          className="w-full"
+          onClick={() => setArchiveOpen(true)}
+        >
+          Eliminar
+        </Button>
+
+        <Button
+          variant="secondary"
+          type="button"
+          className="w-full"
+          onClick={() => navigate(-1)}
+        >
           Cancelar
         </Button>
       </form>
+
+      <ConfirmDialog
+        open={archiveOpen}
+        title="¿Eliminar categoría?"
+        message="La categoría se eliminará permanentemente."
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+        destructive
+        loading={update.isPending}
+        onCancel={() => setArchiveOpen(false)}
+        onConfirm={() => {
+          setArchiveOpen(false);
+          confirmArchive();
+        }}
+      />
     </Card>
   );
 }

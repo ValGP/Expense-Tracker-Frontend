@@ -14,6 +14,14 @@ const ACCOUNT_TYPES = [
   "DIGITAL_WALLET",
 ];
 
+const ACCOUNT_TYPE_LABEL = {
+  CASH: "Efectivo",
+  BANK: "Cuenta bancaria",
+  DEBIT_CARD: "Tarjeta de débito",
+  CREDIT_CARD: "Tarjeta de crédito",
+  DIGITAL_WALLET: "Billetera digital",
+};
+
 export default function AccountCreatePage() {
   const navigate = useNavigate();
   const create = useCreateAccount();
@@ -30,9 +38,9 @@ export default function AccountCreatePage() {
     try {
       await create.mutateAsync({
         name: name.trim(),
-        type,
+        type, // sigue siendo el enum
         currencyCode: currencyCode.trim().toUpperCase(),
-        initialBalance: initialBalance, // BigDecimal como string ok
+        initialBalance, // BigDecimal como string OK
       });
       navigate("/app/accounts", { replace: true });
     } catch (err) {
@@ -66,7 +74,7 @@ export default function AccountCreatePage() {
           >
             {ACCOUNT_TYPES.map((t) => (
               <option key={t} value={t}>
-                {t}
+                {ACCOUNT_TYPE_LABEL[t] ?? t}
               </option>
             ))}
           </select>
@@ -86,11 +94,16 @@ export default function AccountCreatePage() {
           onChange={(e) => setInitialBalance(e.target.value)}
         />
 
-        <Button disabled={create.isPending || !name.trim()}>
+        <Button disabled={create.isPending || !name.trim()} className="w-full">
           {create.isPending ? "Creando..." : "Crear"}
         </Button>
 
-        <Button variant="secondary" type="button" onClick={() => navigate(-1)}>
+        <Button
+          variant="secondary"
+          type="button"
+          className="w-full"
+          onClick={() => navigate(-1)}
+        >
           Cancelar
         </Button>
       </form>

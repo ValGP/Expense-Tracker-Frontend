@@ -1,4 +1,6 @@
 import { useNavigate } from "react-router-dom";
+import { Plus, Pencil } from "lucide-react";
+
 import { Card } from "../components/Card";
 import { Button } from "../components/Button";
 import { Loader } from "../components/Loader";
@@ -27,12 +29,14 @@ export default function CategoriesPage() {
     <div className="space-y-4">
       <Card className="flex items-center justify-between">
         <div className="text-lg font-semibold">Categorías</div>
+
         <button
           onClick={() => navigate("/app/settings/categories/new")}
-          className="flex h-10 w-10 items-center justify-center rounded-full bg-black text-white text-xl"
-          aria-label="Agregar"
+          className="flex h-10 w-10 items-center justify-center rounded-full bg-black text-white"
+          aria-label="Agregar categoría"
+          type="button"
         >
-          +
+          <Plus size={18} />
         </button>
       </Card>
 
@@ -59,21 +63,25 @@ export default function CategoriesPage() {
                   />
                   <div className="text-sm font-semibold truncate">{c.name}</div>
                 </div>
+
                 {c.description && (
                   <div className="mt-1 text-xs text-gray-500 truncate">
                     {c.description}
                   </div>
                 )}
+
                 <div className="mt-1 text-xs text-gray-500">
                   {c.active ? "Activa" : "Archivada"}
                 </div>
               </div>
 
               <button
-                className="rounded-lg px-3 py-2 text-sm bg-gray-100"
+                className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100"
                 onClick={() => navigate(`/app/settings/categories/${c.id}`)}
+                aria-label="Editar categoría"
+                type="button"
               >
-                Editar
+                <Pencil size={16} />
               </button>
             </Card>
           ))}
