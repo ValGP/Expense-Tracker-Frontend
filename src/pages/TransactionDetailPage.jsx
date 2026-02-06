@@ -20,7 +20,7 @@ import { formatShortDate } from "../utils/date";
 
 function money(value, currency = "ARS") {
   const n = Number(value ?? 0);
-  return new Intl.NumberFormat("es-AR", { style: "currency", currency }).format(
+  return new Intl.NumberFormat("en-US", { style: "currency", currency }).format(
     n
   );
 }
@@ -58,16 +58,16 @@ export default function TransactionDetailPage() {
 
   const tx = txQ.data;
 
-  // inicializar form cuando llega la tx (una vez por id)
+  // initialize form when tx arrives (once per id)
   useEffect(() => {
     if (!tx) return;
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setDescription(tx.description ?? "");
     setOperationDate(tx.operationDate ?? "");
     setCategoryId(tx.categoryId ? String(tx.categoryId) : "");
-  }, [tx?.id]); // importante: por id, no por objeto entero
+  }, [tx?.id]);
 
-  if (txQ.isLoading) return <Loader text="Cargando movimiento..." />;
+  if (txQ.isLoading) return <Loader text="Loading transaction..." />;
 
   if (txQ.error) {
     return (
@@ -80,7 +80,7 @@ export default function TransactionDetailPage() {
             variant="secondary"
             onClick={() => navigate("/app/transactions")}
           >
-            Volver a Movimientos
+            Back to Transactions
           </Button>
         </div>
       </Card>
@@ -88,7 +88,7 @@ export default function TransactionDetailPage() {
   }
 
   const category = categoriesMap[tx.categoryId];
-  const categoryName = category?.name ?? "Sin categoría";
+  const categoryName = category?.name ?? "Uncategorized";
   const categoryColor = category?.colorHex ?? "#9CA3AF";
 
   const accountName =
@@ -129,18 +129,18 @@ export default function TransactionDetailPage() {
   }
 
   return (
-    // pb-44 para que nada quede tapado por el BottomNav + sticky actions
+    // pb-44 so nothing gets covered by BottomNav + sticky actions
     <div className="pb-44">
-      {/* Header app-style */}
+      {/* App-style header */}
       <div className="flex items-center justify-between px-1">
         <button
           type="button"
           className="inline-flex items-center gap-1 rounded-lg px-2 py-2 text-sm hover:bg-gray-100"
           onClick={() => navigate(-1)}
-          aria-label="Volver"
+          aria-label="Back"
         >
           <ChevronLeft size={18} />
-          <span className="font-medium">Detalle</span>
+          <span className="font-medium">Details</span>
         </button>
 
         <div className="text-xs text-gray-500">
@@ -171,7 +171,7 @@ export default function TransactionDetailPage() {
               <div className="truncate">
                 {categoryName}
                 {" • "}
-                {accountName || "Cuenta"}
+                {accountName || "Account"}
               </div>
             </div>
           </Card>
@@ -180,7 +180,7 @@ export default function TransactionDetailPage() {
           <Card className="space-y-3">
             {tx.description?.trim() ? (
               <div>
-                <div className="text-xs text-gray-500">Descripción</div>
+                <div className="text-xs text-gray-500">Description</div>
                 <div className="text-sm font-medium">
                   {tx.description.trim()}
                 </div>
@@ -189,26 +189,26 @@ export default function TransactionDetailPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <div className="text-xs text-gray-500">Categoría</div>
+                <div className="text-xs text-gray-500">Category</div>
                 <div className="text-sm font-medium truncate">
                   {categoryName}
                 </div>
               </div>
 
               <div>
-                <div className="text-xs text-gray-500">Cuenta</div>
+                <div className="text-xs text-gray-500">Account</div>
                 <div className="text-sm font-medium truncate">
-                  {accountName || "Cuenta"}
+                  {accountName || "Account"}
                 </div>
               </div>
             </div>
           </Card>
 
-          {/* Sticky actions ABOVE BottomNav (Editar primero, Anular debajo) */}
+          {/* Sticky actions ABOVE BottomNav */}
           <div className="fixed inset-x-0 bottom-20 bg-white/90 backdrop-blur px-4 py-3">
             <div className="space-y-2">
               <Button className="w-full" onClick={() => setEditMode(true)}>
-                Editar movimiento
+                Edit transaction
               </Button>
 
               <button
@@ -217,7 +217,7 @@ export default function TransactionDetailPage() {
                 onClick={() => setConfirmOpen(true)}
                 disabled={cancelM.isPending}
               >
-                {cancelM.isPending ? "Anulando..." : "Anular movimiento"}
+                {cancelM.isPending ? "Canceling..." : "Cancel transaction"}
               </button>
             </div>
           </div>
@@ -225,18 +225,18 @@ export default function TransactionDetailPage() {
       ) : (
         <div className="mt-3 space-y-3">
           <Card className="space-y-3">
-            <div className="text-lg font-semibold">Editar movimiento</div>
+            <div className="text-lg font-semibold">Edit transaction</div>
 
             <form className="space-y-3" onSubmit={handleSave}>
               <Input
-                label="Descripción"
+                label="Description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Opcional"
+                placeholder="Optional"
               />
 
               <label className="block">
-                <span className="mb-1 block text-sm text-gray-700">Fecha</span>
+                <span className="mb-1 block text-sm text-gray-700">Date</span>
                 <input
                   className="w-full rounded-xl border border-gray-200 bg-white px-3 py-3 text-base outline-none focus:border-gray-400"
                   type="date"
@@ -247,14 +247,14 @@ export default function TransactionDetailPage() {
 
               <label className="block">
                 <span className="mb-1 block text-sm text-gray-700">
-                  Categoría
+                  Category
                 </span>
                 <select
                   className="w-full rounded-xl border border-gray-200 bg-white px-3 py-3 text-base outline-none focus:border-gray-400"
                   value={categoryId}
                   onChange={(e) => setCategoryId(e.target.value)}
                 >
-                  <option value="">Seleccionar categoría</option>
+                  <option value="">Select a category</option>
                   {(categoriesQ.data ?? []).map((c) => (
                     <option key={c.id} value={c.id}>
                       {c.name}
@@ -264,7 +264,7 @@ export default function TransactionDetailPage() {
               </label>
 
               <Button disabled={updateM.isPending} className="w-full">
-                {updateM.isPending ? "Guardando..." : "Guardar"}
+                {updateM.isPending ? "Saving..." : "Save changes"}
               </Button>
 
               <Button
@@ -279,7 +279,7 @@ export default function TransactionDetailPage() {
                   setCategoryId(tx.categoryId ? String(tx.categoryId) : "");
                 }}
               >
-                Cancelar
+                Cancel
               </Button>
             </form>
           </Card>
@@ -288,10 +288,10 @@ export default function TransactionDetailPage() {
 
       <ConfirmDialog
         open={confirmOpen}
-        title="¿Anular este movimiento?"
-        message="Esta acción no se puede deshacer."
-        confirmText="Anular"
-        cancelText="Cancelar"
+        title="Cancel this transaction?"
+        message="This action can’t be undone."
+        confirmText="Cancel"
+        cancelText="Keep"
         destructive
         loading={cancelM.isPending}
         onCancel={() => setConfirmOpen(false)}

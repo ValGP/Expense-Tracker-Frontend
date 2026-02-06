@@ -11,7 +11,7 @@ export default function CategoriesPage() {
   const navigate = useNavigate();
   const q = useCategories();
 
-  if (q.isLoading) return <Loader text="Cargando categorías..." />;
+  if (q.isLoading) return <Loader text="Loading categories..." />;
 
   if (q.error) {
     return (
@@ -28,12 +28,12 @@ export default function CategoriesPage() {
   return (
     <div className="space-y-4">
       <Card className="flex items-center justify-between">
-        <div className="text-lg font-semibold">Categorías</div>
+        <div className="text-lg font-semibold">Categories</div>
 
         <button
           onClick={() => navigate("/app/settings/categories/new")}
           className="flex h-10 w-10 items-center justify-center rounded-full bg-black text-white"
-          aria-label="Agregar categoría"
+          aria-label="Add category"
           type="button"
         >
           <Plus size={18} />
@@ -43,11 +43,11 @@ export default function CategoriesPage() {
       {categories.length === 0 ? (
         <Card>
           <div className="text-sm text-gray-600">
-            No tenés categorías todavía.
+            You don’t have any categories yet.
           </div>
           <div className="mt-2">
             <Button onClick={() => navigate("/app/settings/categories/new")}>
-              Crear primera categoría
+              Create your first category
             </Button>
           </div>
         </Card>
@@ -71,14 +71,14 @@ export default function CategoriesPage() {
                 )}
 
                 <div className="mt-1 text-xs text-gray-500">
-                  {c.active ? "Activa" : "Archivada"}
+                  {c.active ? "Active" : "Archived"}
                 </div>
               </div>
 
               <button
                 className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100"
                 onClick={() => navigate(`/app/settings/categories/${c.id}`)}
-                aria-label="Editar categoría"
+                aria-label="Edit category"
                 type="button"
               >
                 <Pencil size={16} />

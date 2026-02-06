@@ -16,35 +16,36 @@ export function endOfMonthISO(year, monthIndex0) {
 
 export function monthLabel(year, monthIndex0) {
   const months = [
-    "Enero",
-    "Febrero",
-    "Marzo",
-    "Abril",
-    "Mayo",
-    "Junio",
-    "Julio",
-    "Agosto",
-    "Septiembre",
-    "Octubre",
-    "Noviembre",
-    "Diciembre",
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
   ];
+
   return `${months[monthIndex0]} ${year}`;
 }
 
-const MONTHS_ES = [
-  "ene",
-  "feb",
-  "mar",
-  "abr",
-  "may",
-  "jun",
-  "jul",
-  "ago",
-  "sep",
-  "oct",
-  "nov",
-  "dic",
+const MONTHS_EN = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
 ];
 
 export function formatShortDate(isoDate) {
@@ -52,5 +53,5 @@ export function formatShortDate(isoDate) {
   // isoDate esperado: "2026-01-14"
   const [y, m, d] = isoDate.split("-").map(Number);
   if (!y || !m || !d) return isoDate; // fallback si viene raro
-  return `${d}/${MONTHS_ES[m - 1]}`;
+  return `${d}/${MONTHS_EN[m - 1]}`;
 }

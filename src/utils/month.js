@@ -11,7 +11,7 @@ export function addMonths(date, delta) {
 }
 
 export function formatMonthLabel(date) {
-  return new Intl.DateTimeFormat("es-AR", { month: "long", year: "numeric" })
+  return new Intl.DateTimeFormat("en-US", { month: "long", year: "numeric" })
     .format(date)
     .replace(/^\w/, (c) => c.toUpperCase());
 }

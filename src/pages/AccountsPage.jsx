@@ -18,7 +18,8 @@ export default function AccountsPage() {
   const navigate = useNavigate();
   const q = useAccounts();
 
-  if (q.isLoading) return <Loader text="Cargando cuentas..." />;
+  if (q.isLoading) return <Loader text="Loading accounts..." />;
+
   if (q.error)
     return (
       <Card>
@@ -33,12 +34,12 @@ export default function AccountsPage() {
   return (
     <div className="space-y-4">
       <Card className="flex items-center justify-between">
-        <div className="text-lg font-semibold">Cuentas</div>
+        <div className="text-lg font-semibold">Accounts</div>
 
         <button
           onClick={() => navigate("/app/accounts/new")}
           className="flex h-10 w-10 items-center justify-center rounded-full bg-black text-white"
-          aria-label="Agregar cuenta"
+          aria-label="Add account"
           type="button"
         >
           <Plus size={18} />
@@ -47,10 +48,12 @@ export default function AccountsPage() {
 
       {accounts.length === 0 ? (
         <Card>
-          <div className="text-sm text-gray-600">No tenés cuentas todavía.</div>
+          <div className="text-sm text-gray-600">
+            You don’t have any accounts yet.
+          </div>
           <div className="mt-2">
             <Button onClick={() => navigate("/app/accounts/new")}>
-              Crear primera cuenta
+              Create your first account
             </Button>
           </div>
         </Card>
@@ -60,10 +63,12 @@ export default function AccountsPage() {
             <Card key={a.id} className="flex items-center justify-between">
               <div className="min-w-0">
                 <div className="text-sm font-semibold truncate">{a.name}</div>
+
                 <div className="mt-1 text-xs text-gray-500">
                   {a.type} • {a.currencyCode} •{" "}
-                  {a.active ? "Activa" : "Archivada"}
+                  {a.active ? "Active" : "Archived"}
                 </div>
+
                 <div className="mt-1 text-sm font-semibold">
                   {money(a.currentBalance, a.currencyCode)}
                 </div>
@@ -72,7 +77,7 @@ export default function AccountsPage() {
               <button
                 className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100"
                 onClick={() => navigate(`/app/accounts/${a.id}`)}
-                aria-label="Editar cuenta"
+                aria-label="Edit account"
                 type="button"
               >
                 <Pencil size={16} />

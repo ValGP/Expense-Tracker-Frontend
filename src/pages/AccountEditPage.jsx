@@ -20,11 +20,11 @@ const ACCOUNT_TYPES = [
 ];
 
 const ACCOUNT_TYPE_LABEL = {
-  CASH: "Efectivo",
-  BANK: "Cuenta bancaria",
-  DEBIT_CARD: "Tarjeta de débito",
-  CREDIT_CARD: "Tarjeta de crédito",
-  DIGITAL_WALLET: "Billetera digital",
+  CASH: "Cash",
+  BANK: "Bank account",
+  DEBIT_CARD: "Debit card",
+  CREDIT_CARD: "Credit card",
+  DIGITAL_WALLET: "Digital wallet",
 };
 
 export default function AccountEditPage() {
@@ -34,7 +34,7 @@ export default function AccountEditPage() {
 
   const q = useAccounts();
   const update = useUpdateAccount();
-  // const remove = useDeleteAccount(); // <-- cuando lo tengas
+  // const remove = useDeleteAccount(); // <-- when you have it
 
   const account = useMemo(
     () => (q.data ?? []).find((a) => a.id === accountId) || null,
@@ -68,7 +68,8 @@ export default function AccountEditPage() {
     });
   }, [account]);
 
-  if (q.isLoading) return <Loader text="Cargando..." />;
+  if (q.isLoading) return <Loader text="Loading..." />;
+
   if (q.error)
     return (
       <Card>
@@ -81,7 +82,7 @@ export default function AccountEditPage() {
   if (!account)
     return (
       <Card>
-        <div className="text-sm text-gray-600">Cuenta no encontrada.</div>
+        <div className="text-sm text-gray-600">Account not found.</div>
       </Card>
     );
 
@@ -96,7 +97,7 @@ export default function AccountEditPage() {
           name: name.trim() || null,
           type,
           currencyCode: currencyCode.trim().toUpperCase(),
-          // active: se maneja vía "Eliminar/Archivar" (no checkbox)
+          // active: handled via "Delete/Archive" (no checkbox)
         },
       });
       navigate("/app/accounts", { replace: true });
@@ -109,12 +110,12 @@ export default function AccountEditPage() {
     setError("");
 
     try {
-      // ✅ Elegí UNA de estas dos estrategias:
+      // ✅ Pick ONE strategy:
 
-      // A) Si vas a borrar (delete real):
+      // A) Hard delete:
       // await remove.mutateAsync(accountId);
 
-      // B) Si vas a "archivar" usando active=false (recomendado si hay transacciones asociadas):
+      // B) Archive using active=false (recommended if transactions are linked):
       await update.mutateAsync({
         id: accountId,
         payload: {
@@ -130,7 +131,7 @@ export default function AccountEditPage() {
 
   return (
     <Card className="space-y-3">
-      <div className="text-lg font-semibold">Editar cuenta</div>
+      <div className="text-lg font-semibold">Edit account</div>
 
       {error && (
         <div className="rounded-xl border border-red-100 bg-red-50 p-3 text-sm text-red-700">
@@ -140,13 +141,13 @@ export default function AccountEditPage() {
 
       <form className="space-y-3" onSubmit={submit}>
         <Input
-          label="Nombre"
+          label="Name"
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
 
         <label className="block">
-          <span className="mb-1 block text-sm text-gray-700">Tipo</span>
+          <span className="mb-1 block text-sm text-gray-700">Account type</span>
           <select
             className="w-full rounded-xl border border-gray-200 bg-white px-3 py-3 text-base outline-none focus:border-gray-400"
             value={type}
@@ -161,23 +162,23 @@ export default function AccountEditPage() {
         </label>
 
         <Input
-          label="Moneda (ISO)"
+          label="Currency (ISO code)"
           value={currencyCode}
           onChange={(e) => setCurrencyCode(e.target.value)}
         />
 
         <Button disabled={update.isPending || !name.trim()} className="w-full">
-          {update.isPending ? "Guardando..." : "Guardar"}
+          {update.isPending ? "Saving..." : "Save changes"}
         </Button>
 
-        {/* Acción destructiva debajo del guardar */}
+        {/* Destructive action below primary */}
         <Button
           type="button"
           variant="secondary"
           className="w-full"
           onClick={() => setDeleteOpen(true)}
         >
-          Eliminar cuenta
+          Delete account
         </Button>
 
         <Button
@@ -186,16 +187,16 @@ export default function AccountEditPage() {
           className="w-full"
           onClick={() => navigate(-1)}
         >
-          Cancelar
+          Cancel
         </Button>
       </form>
 
       <ConfirmDialog
         open={deleteOpen}
-        title="¿Eliminar cuenta?"
-        message="Esta acción no se puede deshacer."
-        confirmText="Eliminar"
-        cancelText="Cancelar"
+        title="Delete account?"
+        message="This action can’t be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
         destructive
         loading={update.isPending /* || remove?.isPending */}
         onCancel={() => setDeleteOpen(false)}

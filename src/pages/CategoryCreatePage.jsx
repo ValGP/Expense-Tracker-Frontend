@@ -32,7 +32,7 @@ export default function CategoryCreatePage() {
 
   return (
     <Card className="space-y-3">
-      <div className="text-lg font-semibold">Nueva categoría</div>
+      <div className="text-lg font-semibold">New category</div>
 
       {error && (
         <div className="rounded-xl border border-red-100 bg-red-50 p-3 text-sm text-red-700">
@@ -42,15 +42,16 @@ export default function CategoryCreatePage() {
 
       <form className="space-y-3" onSubmit={submit}>
         <Input
-          label="Nombre"
+          label="Name"
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
+
         <Input
-          label="Descripción"
+          label="Description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          placeholder="Opcional"
+          placeholder="Optional"
         />
 
         <label className="block">
@@ -64,11 +65,11 @@ export default function CategoryCreatePage() {
         </label>
 
         <Button disabled={create.isPending || !name.trim()}>
-          {create.isPending ? "Creando..." : "Crear"}
+          {create.isPending ? "Creating..." : "Create"}
         </Button>
 
         <Button variant="secondary" type="button" onClick={() => navigate(-1)}>
-          Cancelar
+          Cancel
         </Button>
       </form>
     </Card>

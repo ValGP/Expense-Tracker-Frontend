@@ -34,9 +34,7 @@ export default function LoginPage() {
     <div className="min-h-dvh bg-gray-50 p-4">
       <div className="mx-auto max-w-md pt-8">
         <h1 className="text-2xl font-semibold">ExpenseTracker</h1>
-        <p className="mt-1 text-sm text-gray-600">
-          Iniciá sesión para continuar
-        </p>
+        <p className="mt-1 text-sm text-gray-600">Sign in to continue</p>
 
         <Card className="mt-6 space-y-3">
           {error && (
@@ -50,7 +48,7 @@ export default function LoginPage() {
               label="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="tu@email.com"
+              placeholder="you@example.com"
             />
             <Input
               label="Password"
@@ -61,12 +59,12 @@ export default function LoginPage() {
             />
 
             <Button disabled={loading}>
-              {loading ? "Ingresando..." : "Ingresar"}
+              {loading ? "Signing in..." : "Sign in"}
             </Button>
           </form>
 
           <Button variant="secondary" onClick={() => navigate("/register")}>
-            Crear cuenta
+            Create account
           </Button>
         </Card>
       </div>

@@ -30,7 +30,7 @@ export default function SettingsPage() {
   return (
     <div className="space-y-4">
       <Card>
-        <div className="text-lg font-semibold">Ajustes</div>
+        <div className="text-lg font-semibold">Settings</div>
         <div className="mt-2 text-sm text-gray-600">
           {user ? (
             <>
@@ -38,24 +38,26 @@ export default function SettingsPage() {
               <div className="text-gray-500">{user.email}</div>
             </>
           ) : (
-            <div className="text-gray-500">Sesión activa</div>
+            <div className="text-gray-500">Active session</div>
           )}
         </div>
       </Card>
 
       <Card className="p-0">
-        <div className="px-4 pt-4 text-sm font-semibold">Personalización</div>
+        <div className="px-4 pt-4 text-sm font-semibold">Personalization</div>
         <div className="p-2">
           <RowLink
-            title="Categorías"
-            subtitle="Gestioná las categorías de gastos/ingresos"
+            title="Categories"
+            subtitle="Manage expense and income categories"
             onClick={() => navigate("/app/settings/categories")}
           />
-          {/* <RowLink
+          {/*
+          <RowLink
             title="Tags"
-            subtitle="Etiquetas para organizar movimientos"
+            subtitle="Labels to organize transactions"
             onClick={() => navigate("/app/settings/tags")}
-          /> */}
+          />
+          */}
         </div>
       </Card>
 
@@ -66,7 +68,7 @@ export default function SettingsPage() {
           navigate("/login", { replace: true });
         }}
       >
-        Cerrar sesión
+        Sign out
       </Button>
     </div>
   );

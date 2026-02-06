@@ -29,25 +29,29 @@ export default function CategoryEditPage() {
 
   const [archiveOpen, setArchiveOpen] = useState(false);
 
-  // Inicializar form cuando llegue category
+  // Initialize form when category arrives
   useEffect(() => {
     if (!category) return;
+
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setName((prev) => {
       const next = category.name ?? "";
       return prev === next ? prev : next;
     });
+
     setDescription((prev) => {
       const next = category.description ?? "";
       return prev === next ? prev : next;
     });
+
     setColorHex((prev) => {
       const next = category.colorHex ?? "#3b82f6";
       return prev === next ? prev : next;
     });
   }, [category]);
 
-  if (q.isLoading) return <Loader text="Cargando..." />;
+  if (q.isLoading) return <Loader text="Loading..." />;
+
   if (q.error)
     return (
       <Card>
@@ -56,10 +60,11 @@ export default function CategoryEditPage() {
         </div>
       </Card>
     );
+
   if (!category)
     return (
       <Card>
-        <div className="text-sm text-gray-600">Categoría no encontrada.</div>
+        <div className="text-sm text-gray-600">Category not found.</div>
       </Card>
     );
 
@@ -98,7 +103,7 @@ export default function CategoryEditPage() {
 
   return (
     <Card className="space-y-3">
-      <div className="text-lg font-semibold">Editar categoría</div>
+      <div className="text-lg font-semibold">Edit category</div>
 
       {error && (
         <div className="rounded-xl border border-red-100 bg-red-50 p-3 text-sm text-red-700">
@@ -108,13 +113,13 @@ export default function CategoryEditPage() {
 
       <form className="space-y-3" onSubmit={submit}>
         <Input
-          label="Nombre"
+          label="Name"
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
 
         <Input
-          label="Descripción"
+          label="Description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />
@@ -130,17 +135,17 @@ export default function CategoryEditPage() {
         </label>
 
         <Button disabled={update.isPending || !name.trim()} className="w-full">
-          {update.isPending ? "Guardando..." : "Guardar"}
+          {update.isPending ? "Saving..." : "Save changes"}
         </Button>
 
-        {/* Acción destructiva (archivar/desactivar) debajo del guardar */}
+        {/* Destructive action (archive/deactivate) below primary */}
         <Button
           type="button"
           variant="secondary"
           className="w-full"
           onClick={() => setArchiveOpen(true)}
         >
-          Eliminar
+          Archive category
         </Button>
 
         <Button
@@ -149,16 +154,16 @@ export default function CategoryEditPage() {
           className="w-full"
           onClick={() => navigate(-1)}
         >
-          Cancelar
+          Cancel
         </Button>
       </form>
 
       <ConfirmDialog
         open={archiveOpen}
-        title="¿Eliminar categoría?"
-        message="La categoría se eliminará permanentemente."
-        confirmText="Eliminar"
-        cancelText="Cancelar"
+        title="Archive category?"
+        message="This will hide the category from your lists. You can enable it again later."
+        confirmText="Archive"
+        cancelText="Cancel"
         destructive
         loading={update.isPending}
         onCancel={() => setArchiveOpen(false)}

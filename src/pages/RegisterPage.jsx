@@ -34,8 +34,8 @@ export default function RegisterPage() {
   return (
     <div className="min-h-dvh bg-gray-50 p-4">
       <div className="mx-auto max-w-md pt-8">
-        <h1 className="text-2xl font-semibold">Crear cuenta</h1>
-        <p className="mt-1 text-sm text-gray-600">Registrate en 1 minuto</p>
+        <h1 className="text-2xl font-semibold">Create account</h1>
+        <p className="mt-1 text-sm text-gray-600">Sign up in under a minute</p>
 
         <Card className="mt-6 space-y-3">
           {error && (
@@ -46,32 +46,34 @@ export default function RegisterPage() {
 
           <form className="space-y-3" onSubmit={handleRegister}>
             <Input
-              label="Nombre"
+              label="Name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Valentín"
+              placeholder="Valentin"
             />
+
             <Input
               label="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="tu@email.com"
+              placeholder="you@example.com"
             />
+
             <Input
               label="Password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="mínimo 8 caracteres"
+              placeholder="At least 8 characters"
             />
 
             <Button disabled={loading}>
-              {loading ? "Creando..." : "Crear cuenta"}
+              {loading ? "Creating..." : "Create account"}
             </Button>
           </form>
 
           <Button variant="secondary" onClick={() => navigate("/login")}>
-            Volver a login
+            Back to sign in
           </Button>
         </Card>
       </div>

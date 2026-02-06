@@ -93,7 +93,7 @@ export default function NewTransactionPage() {
     try {
       const payloadCommon = {
         categoryId: Number(categoryId),
-        amount: amount, // BigDecimal: puede ir como string
+        amount: amount, // BigDecimal: can be sent as string
         description: description || null,
         operationDate,
         tagIds: tagIds.length ? tagIds : null,
@@ -120,7 +120,7 @@ export default function NewTransactionPage() {
   return (
     <div className="space-y-4">
       <Card className="space-y-3">
-        <div className="text-lg font-semibold">Nuevo movimiento</div>
+        <div className="text-lg font-semibold">New transaction</div>
 
         {error && (
           <div className="rounded-xl border border-red-100 bg-red-50 p-3 text-sm text-red-700">
@@ -138,8 +138,9 @@ export default function NewTransactionPage() {
             }`}
             onClick={() => setType("EXPENSE")}
           >
-            Gasto
+            Expense
           </button>
+
           <button
             type="button"
             className={`flex-1 rounded-xl py-3 text-sm font-medium ${
@@ -149,13 +150,13 @@ export default function NewTransactionPage() {
             }`}
             onClick={() => setType("INCOME")}
           >
-            Ingreso
+            Income
           </button>
         </div>
 
         <form className="space-y-3" onSubmit={handleSubmit}>
           <Input
-            label="Monto"
+            label="Amount"
             inputMode="decimal"
             placeholder="0.00"
             value={amount}
@@ -163,14 +164,14 @@ export default function NewTransactionPage() {
           />
 
           <Input
-            label="Descripción"
-            placeholder="Ej: Supermercado"
+            label="Description"
+            placeholder="e.g. Groceries"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
 
           <label className="block">
-            <span className="mb-1 block text-sm text-gray-700">Fecha</span>
+            <span className="mb-1 block text-sm text-gray-700">Date</span>
             <input
               className="w-full rounded-xl border border-gray-200 bg-white px-3 py-3 text-base outline-none focus:border-gray-400"
               type="date"
@@ -181,14 +182,14 @@ export default function NewTransactionPage() {
 
           <label className="block">
             <span className="mb-1 block text-sm text-gray-700">
-              {type === "EXPENSE" ? "Cuenta origen" : "Cuenta destino"}
+              {type === "EXPENSE" ? "Source account" : "Destination account"}
             </span>
             <select
               className="w-full rounded-xl border border-gray-200 bg-white px-3 py-3 text-base outline-none focus:border-gray-400"
               value={accountId}
               onChange={(e) => setAccountId(e.target.value)}
             >
-              <option value="">Seleccionar cuenta</option>
+              <option value="">Select an account</option>
               {accounts.map((a) => (
                 <option key={a.id} value={a.id}>
                   {a.name} ({a.currencyCode})
@@ -198,13 +199,13 @@ export default function NewTransactionPage() {
           </label>
 
           <label className="block">
-            <span className="mb-1 block text-sm text-gray-700">Categoría</span>
+            <span className="mb-1 block text-sm text-gray-700">Category</span>
             <select
               className="w-full rounded-xl border border-gray-200 bg-white px-3 py-3 text-base outline-none focus:border-gray-400"
               value={categoryId}
               onChange={(e) => setCategoryId(e.target.value)}
             >
-              <option value="">Seleccionar categoría</option>
+              <option value="">Select a category</option>
               {categories.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.name}
@@ -213,7 +214,7 @@ export default function NewTransactionPage() {
             </select>
           </label>
 
-          {/* Tags (opcional) */}
+          {/* Tags (optional) */}
           {tags.length > 0 && (
             <div>
               <div className="mb-2 text-sm text-gray-700">Tags</div>
@@ -240,7 +241,7 @@ export default function NewTransactionPage() {
           )}
 
           <Button disabled={!canSubmit}>
-            {isLoading ? "Guardando..." : "Guardar"}
+            {isLoading ? "Saving..." : "Save"}
           </Button>
         </form>
       </Card>

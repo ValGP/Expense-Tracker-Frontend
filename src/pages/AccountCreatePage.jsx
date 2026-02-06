@@ -15,11 +15,11 @@ const ACCOUNT_TYPES = [
 ];
 
 const ACCOUNT_TYPE_LABEL = {
-  CASH: "Efectivo",
-  BANK: "Cuenta bancaria",
-  DEBIT_CARD: "Tarjeta de débito",
-  CREDIT_CARD: "Tarjeta de crédito",
-  DIGITAL_WALLET: "Billetera digital",
+  CASH: "Cash",
+  BANK: "Bank account",
+  DEBIT_CARD: "Debit card",
+  CREDIT_CARD: "Credit card",
+  DIGITAL_WALLET: "Digital wallet",
 };
 
 export default function AccountCreatePage() {
@@ -38,9 +38,9 @@ export default function AccountCreatePage() {
     try {
       await create.mutateAsync({
         name: name.trim(),
-        type, // sigue siendo el enum
+        type, // enum stays the same
         currencyCode: currencyCode.trim().toUpperCase(),
-        initialBalance, // BigDecimal como string OK
+        initialBalance, // BigDecimal as string OK
       });
       navigate("/app/accounts", { replace: true });
     } catch (err) {
@@ -50,7 +50,7 @@ export default function AccountCreatePage() {
 
   return (
     <Card className="space-y-3">
-      <div className="text-lg font-semibold">Nueva cuenta</div>
+      <div className="text-lg font-semibold">New account</div>
 
       {error && (
         <div className="rounded-xl border border-red-100 bg-red-50 p-3 text-sm text-red-700">
@@ -60,13 +60,13 @@ export default function AccountCreatePage() {
 
       <form className="space-y-3" onSubmit={submit}>
         <Input
-          label="Nombre"
+          label="Name"
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
 
         <label className="block">
-          <span className="mb-1 block text-sm text-gray-700">Tipo</span>
+          <span className="mb-1 block text-sm text-gray-700">Account type</span>
           <select
             className="w-full rounded-xl border border-gray-200 bg-white px-3 py-3 text-base outline-none focus:border-gray-400"
             value={type}
@@ -81,21 +81,21 @@ export default function AccountCreatePage() {
         </label>
 
         <Input
-          label="Moneda (ISO)"
+          label="Currency (ISO code)"
           value={currencyCode}
           onChange={(e) => setCurrencyCode(e.target.value)}
-          placeholder="ARS"
+          placeholder="USD"
         />
 
         <Input
-          label="Saldo inicial"
+          label="Initial balance"
           inputMode="decimal"
           value={initialBalance}
           onChange={(e) => setInitialBalance(e.target.value)}
         />
 
         <Button disabled={create.isPending || !name.trim()} className="w-full">
-          {create.isPending ? "Creando..." : "Crear"}
+          {create.isPending ? "Creating..." : "Create account"}
         </Button>
 
         <Button
@@ -104,7 +104,7 @@ export default function AccountCreatePage() {
           className="w-full"
           onClick={() => navigate(-1)}
         >
-          Cancelar
+          Cancel
         </Button>
       </form>
     </Card>

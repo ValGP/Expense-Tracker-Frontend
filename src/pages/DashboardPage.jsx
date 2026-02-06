@@ -51,7 +51,7 @@ export default function DashboardPage() {
 
   const lastTx = useMemo(() => {
     const list = txQ.data ?? [];
-    // ordenar por recordedAt desc (si no existe, fallback a operationDate)
+    // sort by recordedAt desc (fallback to operationDate)
     const sorted = [...list].sort((a, b) => {
       const da = a.recordedAt
         ? new Date(a.recordedAt).getTime()
@@ -64,7 +64,7 @@ export default function DashboardPage() {
     return sorted.slice(0, 5);
   }, [txQ.data]);
 
-  if (isLoading) return <Loader text="Cargando resumen..." />;
+  if (isLoading) return <Loader text="Loading summary..." />;
 
   if (error) {
     return (
@@ -80,24 +80,24 @@ export default function DashboardPage() {
   const top = summary?.topCategories ?? [];
   const totalExpenseNum = Number(summary?.totalExpense ?? 0);
 
-  // suma del top
+  // sum of top categories
   const topSum = top.reduce((acc, c) => acc + Number(c.total ?? 0), 0);
 
-  // “Otros” = totalExpense - sumaTop
+  // “Other” = totalExpense - topSum
   const others = Math.max(0, totalExpenseNum - topSum);
 
-  // Items del donut (top + otros)
+  // Donut items (top + other)
   const donutItems = [
     ...top.map((c) => {
       const name =
         c.categoryName ||
         categoriesMap?.[c.categoryId]?.name ||
-        "Sin categoría";
+        "Uncategorized";
       const color = categoriesMap?.[c.categoryId]?.colorHex;
 
       return {
         label: name,
-        value: c.total, // puede ser string BigDecimal
+        value: c.total, // can be BigDecimal string
         color,
         _key: `cat-${c.categoryId}`,
       };
@@ -105,7 +105,7 @@ export default function DashboardPage() {
     ...(others > 0
       ? [
           {
-            label: "Otros",
+            label: "Other",
             value: others, // number
             color: "#9CA3AF",
             _key: "others",
@@ -119,7 +119,7 @@ export default function DashboardPage() {
       {/* Header */}
       <Card className="flex items-center justify-between">
         <div>
-          <div className="text-lg font-semibold">Resumen</div>
+          <div className="text-lg font-semibold">Overview</div>
           <div className="text-xs text-gray-500">
             {formatMonthLabel(monthDate)}
           </div>
@@ -129,7 +129,7 @@ export default function DashboardPage() {
           <button
             type="button"
             onClick={() => setMonthDate((d) => addMonths(d, -1))}
-            aria-label="Mes anterior"
+            aria-label="Previous month"
             className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200 active:scale-95 transition"
           >
             <ChevronLeft size={20} />
@@ -138,7 +138,7 @@ export default function DashboardPage() {
           <button
             type="button"
             onClick={() => setMonthDate((d) => addMonths(d, 1))}
-            aria-label="Mes siguiente"
+            aria-label="Next month"
             className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200 active:scale-95 transition"
           >
             <ChevronRight size={20} />
@@ -148,25 +148,25 @@ export default function DashboardPage() {
 
       {/* Stats */}
       <div className="space-y-3">
-        {/* Balance protagonista */}
+        {/* Main balance */}
         <StatCard
-          title="Balance"
+          title="Net balance"
           value={money(summary?.net)}
           className="py-4 text-center"
           valueClassName="text-4xl"
           titleClassName="text-sm text-gray-500"
         />
 
-        {/* Gastos / Ingresos */}
+        {/* Expenses / Income */}
         <div className="grid grid-cols-2 gap-3">
           <StatCard
-            title="Gastos del mes"
+            title="Monthly expenses"
             value={money(summary?.totalExpense)}
             className="py-4"
             valueClassName="text-xl"
           />
           <StatCard
-            title="Ingresos del mes"
+            title="Monthly income"
             value={money(summary?.totalIncome)}
             className="py-4"
             valueClassName="text-xl"
@@ -174,32 +174,32 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Expense structure */}
+      {/* Expense breakdown */}
       <Card>
         <div className="flex items-center justify-between">
-          <div className="text-sm font-semibold">Estructura de gastos</div>
+          <div className="text-sm font-semibold">Expense breakdown</div>
           <button
             className="text-sm text-gray-600"
             onClick={() => navigate("/app/transactions")}
           >
-            Ver
+            View
           </button>
         </div>
 
         <div className="mt-3">
           <ExpenseDonut
             items={donutItems}
-            totalLabel="Gastos"
+            totalLabel="Expenses"
             totalValue={money(summary?.totalExpense)}
             height={190}
           />
         </div>
 
-        {/* Mini leyenda */}
+        {/* Mini legend */}
         <div className="mt-3 space-y-2">
           {donutItems.length === 0 ? (
             <div className="text-sm text-gray-600">
-              Sin gastos confirmados en este período.
+              No confirmed expenses in this period.
             </div>
           ) : (
             donutItems.slice(0, 20).map((c) => (
@@ -223,33 +223,35 @@ export default function DashboardPage() {
         </div>
       </Card>
 
-      {/* Last movements */}
+      {/* Recent activity */}
       <Card>
         <div className="flex items-center justify-between">
-          <div className="text-sm font-semibold">Últimos movimientos</div>
+          <div className="text-sm font-semibold">Recent activity</div>
           <button
             className="text-sm text-gray-600"
             onClick={() => navigate("/app/transactions")}
           >
-            Ver todos
+            View all
           </button>
         </div>
 
         <div className="mt-3 space-y-2">
           {lastTx.length === 0 ? (
             <div className="text-sm text-gray-600">
-              Todavía no registraste movimientos.
+              You haven’t added any transactions yet.
             </div>
           ) : (
             lastTx.map((tx) => {
               const categoryName =
-                categoriesMap[tx.categoryId]?.name ?? "Sin categoría";
+                categoriesMap[tx.categoryId]?.name ?? "Uncategorized";
+
               const accountName =
                 tx.type === "EXPENSE"
                   ? accountsMap[tx.sourceAccountId]?.name
                   : accountsMap[tx.destinationAccountId]?.name;
 
               const sign = tx.type === "EXPENSE" ? "-" : "+";
+
               return (
                 <button
                   key={tx.id}
@@ -263,7 +265,7 @@ export default function DashboardPage() {
                         {tx.description || categoryName}
                       </div>
                       <div className="mt-1 text-xs text-gray-500 truncate">
-                        {accountName || "Cuenta"} •{" "}
+                        {accountName || "Account"} •{" "}
                         {formatShortDate(tx.operationDate)}
                       </div>
                     </div>
@@ -279,7 +281,7 @@ export default function DashboardPage() {
 
         <div className="mt-3">
           <Button onClick={() => navigate("/app/transactions/new")}>
-            + Nuevo movimiento
+            + New transaction
           </Button>
         </div>
       </Card>

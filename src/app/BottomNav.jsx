@@ -70,7 +70,7 @@ export default function BottomNav() {
                 strokeWidth={2}
                 className={isActive ? "text-black" : "text-gray-500"}
               />
-              <span>Cuentas</span>
+              <span>Accounts</span>
             </>
           )}
         </NavLink>
@@ -88,7 +88,7 @@ export default function BottomNav() {
                 strokeWidth={2}
                 className={isActive ? "text-black" : "text-gray-500"}
               />
-              <span>Ajustes</span>
+              <span>Settings</span>
             </>
           )}
         </NavLink>
