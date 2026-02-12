@@ -30,6 +30,18 @@ export default function LoginPage() {
     }
   }
 
+  async function resetDemo() {
+    const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/demo/reset`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+    });
+
+    if (!res.ok) {
+      const text = await res.text().catch(() => "");
+      throw new Error(text || "Failed to reset demo data.");
+    }
+  }
+
   return (
     <div className="min-h-dvh bg-gray-50 p-4">
       <div className="mx-auto max-w-md pt-8">
@@ -65,6 +77,26 @@ export default function LoginPage() {
 
           <Button variant="secondary" onClick={() => navigate("/register")}>
             Create account
+          </Button>
+
+          <Button
+            variant="secondary"
+            disabled={loading}
+            onClick={async () => {
+              setError("");
+              setLoading(true);
+              try {
+                await resetDemo();
+                await login("demo@example.com", "demo12345");
+                navigate("/app/home", { replace: true });
+              } catch (err) {
+                setError(getApiErrorMessage(err));
+              } finally {
+                setLoading(false);
+              }
+            }}
+          >
+            Enter demo mode
           </Button>
         </Card>
       </div>
