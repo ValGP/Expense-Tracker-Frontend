@@ -18,7 +18,7 @@ export default function NewTransactionPage() {
 
   const [accountId, setAccountId] = useState("");
   const [categoryId, setCategoryId] = useState("");
-  const [tagIds, setTagIds] = useState([]);
+  // const [tagIds, setTagIds] = useState([]);
 
   const [error, setError] = useState("");
 
@@ -38,7 +38,7 @@ export default function NewTransactionPage() {
 
   const accounts = accountsQ.data ?? [];
   const categories = categoriesQ.data ?? [];
-  const tags = tagsQ.data ?? [];
+  // const tags = tagsQ.data ?? [];
 
   const [autoAccountDone, setAutoAccountDone] = useState(false);
   const [autoCategoryDone, setAutoCategoryDone] = useState(false);
@@ -80,11 +80,11 @@ export default function NewTransactionPage() {
     );
   }, [amount, accountId, categoryId, operationDate, isLoading]);
 
-  function toggleTag(id) {
-    setTagIds((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-    );
-  }
+  // function toggleTag(id) {
+  //   setTagIds((prev) =>
+  //     prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+  //   );
+  // }
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -96,7 +96,7 @@ export default function NewTransactionPage() {
         amount: amount, // BigDecimal: can be sent as string
         description: description || null,
         operationDate,
-        tagIds: tagIds.length ? tagIds : null,
+        // tagIds: tagIds.length ? tagIds : null,
       };
 
       if (type === "EXPENSE") {
@@ -215,7 +215,7 @@ export default function NewTransactionPage() {
           </label>
 
           {/* Tags (optional) */}
-          {tags.length > 0 && (
+          {/* {tags.length > 0 && (
             <div>
               <div className="mb-2 text-sm text-gray-700">Tags</div>
               <div className="flex flex-wrap gap-2">
@@ -238,7 +238,7 @@ export default function NewTransactionPage() {
                 })}
               </div>
             </div>
-          )}
+          )} */}
 
           <Button disabled={!canSubmit}>
             {isLoading ? "Saving..." : "Save"}
